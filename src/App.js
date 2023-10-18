@@ -38,7 +38,7 @@ function App() {
             <h1 className="score-heading">Your Score is:</h1>
             <p>
               {score} out of {questions.length} (
-              {(score / questions.length) * 100}%)
+              {((score / questions.length) * 100).toFixed(2)}%)
             </p>
             <button className="retakeBtn" onClick={resetTest}>
               Retake Test
@@ -53,13 +53,27 @@ function App() {
         {questions &&
           questions.length > current &&
           questions.map((item, index) => {
-            let { question, options, answer } = item
+            let { question, options, answer, quizType } = item
 
-            let audioQuestion = require(`./assets/audio/${question}.mp3`)
+            let audioQuestion =
+              quizType === 'audio-images'
+                ? require(`./assets/audio/${question}.mp3`)
+                : ''
 
             return index === current ? (
               <div key={index}>
-                <audio src={`${audioQuestion}`} controls></audio>
+                {quizType === 'audio-images' ? (
+                  <audio src={`${audioQuestion}`} controls></audio>
+                ) : (
+                  ''
+                )}
+
+                {quizType === 'text-images' ? (
+                  <h2>{question.toUpperCase()}</h2>
+                ) : (
+                  ''
+                )}
+
                 <div className="flex">
                   {options.map((option, index) => {
                     let image = require(`./assets/img/${option}.jpg`)
