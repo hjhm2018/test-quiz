@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { questions } from './assets/data/data'
 import { BsCheckCircleFill, BsXCircleFill } from 'react-icons/bs'
 import './App.css'
@@ -8,6 +8,21 @@ function App() {
   let [score, setScore] = useState(0)
   let [clicked, setClicked] = useState(false)
   let [show, setShow] = useState(false)
+
+  let [questionsArr, setQuestionsArr] = useState([])
+
+  // This shuffles the array and the questions options order
+  useEffect(() => {
+    setQuestionsArr(
+      questions
+        .sort(() => Math.random() - 0.5)
+        .map((question) => {
+          return question.options.sort(() => Math.random() - 0.5)
+        })
+    )
+  }, [])
+
+  console.log(questionsArr)
 
   const nextQuestion = () => {
     setCurrent((current) => current + 1)
