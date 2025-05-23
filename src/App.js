@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { questions } from "./assets/data/data";
-import { BsCheckCircleFill, BsXCircleFill } from "react-icons/bs";
 import "./App.css";
 
 function App() {
@@ -8,26 +7,23 @@ function App() {
   let [score, setScore] = useState(0);
   let [clicked, setClicked] = useState(false);
   let [show, setShow] = useState(false);
-  let [refresh, setRefresh] = useState(false);
-
   let [questionsArr, setQuestionsArr] = useState([]);
+  let [correct, setCorrect] = useState(false);
 
-  // This shuffles the array and the questions options order
+  // My approach
+  const startQuiz = () => {
+    let sortedQuestions = questions.sort(() => Math.random() - 0.5);
 
-  const sortQuestions = () => {
-    let sortedQuestions = questions
-      .sort(() => Math.random() - 0.5)
-      .map((question) => {
-        return question.options.sort(() => Math.random() - 0.5);
-      });
+    for (const question of sortedQuestions) {
+      question.answers.sort(() => Math.random() - 0.5);
+    }
+
     setQuestionsArr(sortedQuestions);
   };
 
   useEffect(() => {
-    sortQuestions();
-  }, [refresh]);
-
-  // console.log(questionsArr);
+    startQuiz();
+  }, []);
 
   const nextQuestion = () => {
     setCurrent((current) => current + 1);
@@ -35,30 +31,33 @@ function App() {
     setShow((show) => !show);
   };
 
-  const selectAnswer = (answer, option) => {
+  const selectAnswer = (answer) => {
     setClicked((clicked) => !clicked);
     setShow((show) => !show);
 
-    if (answer === option) {
+    if (answer) {
       setScore((score) => score + 1);
+      setCorrect(true);
+    } else {
+      setCorrect(false);
     }
   };
 
   const resetTest = () => {
     setCurrent(0);
     setScore(0);
-    setRefresh((refresh) => !refresh);
+    startQuiz();
   };
 
   return (
     <>
       <div>
-        {current === questions.length ? (
+        {current === questionsArr.length ? (
           <div className="score">
             <h1 className="score-heading">Your Score is:</h1>
             <p>
-              {score} out of {questions.length} (
-              {((score / questions.length) * 100).toFixed(2)}%)
+              {score} out of {questionsArr.length} (
+              {((score / questionsArr.length) * 100).toFixed(2)}%)
             </p>
             <button className="retakeBtn" onClick={resetTest}>
               Retake Test
@@ -70,57 +69,40 @@ function App() {
           </>
         )}
 
-        {questions &&
-          questions.length > current &&
-          questions.map((item, index) => {
-            let { question, options, answer, quizType } = item;
-
-            let audioQuestion =
-              quizType === "audio-images"
-                ? require(`./assets/audio/${question}.mp3`)
-                : "";
-
+        {questionsArr &&
+          questionsArr.length > 0 &&
+          questionsArr.map((item, index) => {
+            let { question, answers, feedback } = item;
             return index === current ? (
-              <div key={index}>
-                {quizType === "audio-images" ? (
-                  <audio src={`${audioQuestion}`} controls></audio>
-                ) : (
-                  ""
-                )}
-
-                {quizType === "text-images" ? (
-                  <h2>{question.toUpperCase()}</h2>
-                ) : (
-                  ""
-                )}
-
+              <div className="flex" key={index}>
+                <p>{question}</p>
                 <div className="flex">
-                  {options.map((option, index) => {
-                    let image = require(`./assets/img/${option}.jpg`);
+                  {answers.map((answer, index) => {
                     return (
                       <button
                         key={`button-${index}`}
-                        style={{
-                          backgroundImage: `url(${image})`,
-                        }}
-                        onClick={() => selectAnswer(answer, option)}
-                        className={`${clicked ? "unclickable" : ""}`}
+                        onClick={() => selectAnswer(answer.correct)}
+                        className={`${clicked ? "unclickable" : ""} ${
+                          clicked && answer.correct ? "correct-answer" : ""
+                        } ${clicked && !answer.correct ? "wrong-answer" : ""}`}
+                        // disabled={clicked ? true : false}
                       >
-                        {answer === option ? (
-                          <BsCheckCircleFill
-                            className={`green ${show ? "" : "hide"}`}
-                          />
-                        ) : (
-                          <BsXCircleFill
-                            className={`red ${show ? "" : "hide"}`}
-                          />
-                        )}
+                        {answer.text}
                       </button>
                     );
                   })}
                 </div>
+                {show ? (
+                  <p>
+                    {correct ? "✅" : "❌"}&nbsp;
+                    <b>Answer</b>: <i>{feedback}</i>
+                  </p>
+                ) : (
+                  ""
+                )}
+
                 {clicked && (
-                  <button className="nextBtn" onClick={nextQuestion}>
+                  <button id="nextBtn" onClick={nextQuestion}>
                     Next
                   </button>
                 )}
