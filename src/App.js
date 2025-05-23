@@ -8,30 +8,36 @@ function App() {
   let [score, setScore] = useState(0);
   let [clicked, setClicked] = useState(false);
   let [show, setShow] = useState(false);
+  let [refresh, setRefresh] = useState(false);
 
   let [questionsArr, setQuestionsArr] = useState([]);
 
   // This shuffles the array and the questions options order
-  useEffect(() => {
+
+  const sortQuestions = () => {
     let sortedQuestions = questions
       .sort(() => Math.random() - 0.5)
       .map((question) => {
         return question.options.sort(() => Math.random() - 0.5);
       });
     setQuestionsArr(sortedQuestions);
-  }, []);
+  };
+
+  useEffect(() => {
+    sortQuestions();
+  }, [refresh]);
 
   console.log(questionsArr);
 
   const nextQuestion = () => {
     setCurrent((current) => current + 1);
-    setClicked(!clicked);
-    setShow(!show);
+    setClicked((clicked) => !clicked);
+    setShow((show) => !show);
   };
 
   const selectAnswer = (answer, option) => {
-    setClicked(!clicked);
-    setShow(!show);
+    setClicked((clicked) => !clicked);
+    setShow((show) => !show);
 
     if (answer === option) {
       setScore((score) => score + 1);
@@ -41,6 +47,7 @@ function App() {
   const resetTest = () => {
     setCurrent(0);
     setScore(0);
+    setRefresh((refresh) => !refresh);
   };
 
   return (
