@@ -27,7 +27,7 @@ function App() {
     sortQuestions();
   }, [refresh]);
 
-  console.log(questionsArr);
+  // console.log(questionsArr);
 
   const nextQuestion = () => {
     setCurrent((current) => current + 1);
@@ -52,7 +52,6 @@ function App() {
 
   return (
     <>
-      {/* <img src={require('./assets/img/cat.jpg')} alt="cat" /> */}
       <div>
         {current === questions.length ? (
           <div className="score">
